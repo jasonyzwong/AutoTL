@@ -1,5 +1,7 @@
 pass in image
 identify text boxes
+find speech bubbles with edge detection? what seperates it from other speech bubbles?
+
 scale/preprocess text
 OCR text
 

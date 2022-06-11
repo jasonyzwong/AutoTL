@@ -14,26 +14,29 @@ def noise(image):
 def threshold(image):
    return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-
+def speechBubbles(image):
+  imageGrayBlurCanny = cv2.Canny(image,50,500)
+  binary = cv2.threshold(imageGrayBlurCanny,235,255,cv2.THRESH_BINARY)[1]
+  contours = cv2.findContours(binary,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)[0]
+  croppedImageList = []
+  for contour in contours:
+    rect = cv2.boundingRect(contour)
+    [x, y, w, h] = rect
+    if w < 500 and w > 60 and h < 500 and h > 25:
+      croppedImage = image[y:y+h, x:x+w]
+      croppedImageList.append(croppedImage)
+  return croppedImageList
 
 #Initialization
-filename = "Test Data/testcap2.png"
+filename = "Test Data/005.jpg"
 reader = easyocr.Reader(['ja'])
 
 img = cv2.imread(filename)
 
 #Preprocess 
-pre = img
-#pre = greyscale(img)
-#pre = threshold(pre)
+bubbles = speechBubbles(img)
 
-
-d = pytesseract.image_to_data(pre, output_type=Output.DICT)
-n_boxes = len(d['level'])
-for i in range(n_boxes):
-    (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
-    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-cv2.imshow('img', pre)
-cv2.waitKey(0)
+for bubble in bubbles:
+  cv2.imshow('image', bubble)
+  cv2.waitKey()
 
